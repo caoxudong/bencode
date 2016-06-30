@@ -18,8 +18,10 @@ public class ParserTest {
       new Object[] {
           "dasd-i".getBytes(), 5, null, null, BEncodeFormatException.class},
       new Object[] {"i43e".getBytes(), 0, 43, 4, null},
+      new Object[] {"i-43e".getBytes(), 0, -43, 5, null},
       new Object[] {"321-i43e".getBytes(), 4, 43, 4, null},
       new Object[] {"i0e".getBytes(), 0, 0, 3, null},
+      new Object[] {"i-0e".getBytes(), 0, 0, 4, BEncodeFormatException.class},
       new Object[] {
           "i000e".getBytes(), 0, null, null, BEncodeFormatException.class},
       new Object[] {

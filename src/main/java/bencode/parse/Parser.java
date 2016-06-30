@@ -94,6 +94,7 @@ public class Parser {
       final byte[] content, int offset) {
     int i = offset + 1, pin = i;
     int contentLength = content.length;
+    boolean isNagetive = false;
 
     if (i >= contentLength) {
       logger.error("Parsing integer unfinished when reaching the end");
@@ -101,6 +102,11 @@ public class Parser {
           "Parsing integer unfinished when reaching the end");
     }
     
+    if ('-' == content[i]) {
+      isNagetive = true;
+      i++;
+    }
+
     if (BInteger.SUFFIX == content[i]) {
       logger.error("Numbers not found when parsing integer.");
       throw new BEncodeFormatException(
@@ -113,6 +119,15 @@ public class Parser {
       byte current = content[i];
       if (BInteger.SUFFIX == current) {
         bInteger = new BInteger();
+        if (isNagetive) {
+          if (0 == value) {
+            logger.error("Find invalid nagetive-zero when parsing integer.");
+            throw new BEncodeFormatException(
+                "Find invalid nagetive-zero when parsing integer.");
+          } else {
+            value *= -1;
+          }
+        }
         bInteger.setValue(value);
         break;
       } else {
