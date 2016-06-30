@@ -1,5 +1,7 @@
 package bencode.type;
 
+import java.util.TreeMap;
+
 /**
  * <p>B编码的字典类型。
  * 
@@ -15,6 +17,20 @@ package bencode.type;
  * @author caoxudong
  * @since 0.1.0
  */
-public class BMap implements BType {
+public class BDictionary implements BType<TreeMap<String, BType<?>>> {
 
+  public static final char PREFIX = 'd';
+  public static final char SUFFIX = 'e';
+  
+  private TreeMap<String, BType<?>> value;
+  
+  @Override
+  public TreeMap<String, BType<?>> getValue() {
+    return this.value;
+  }
+  @Override
+  public void setValue(TreeMap<String, BType<?>> value) {
+    this.value = value;
+  }
+  
 }

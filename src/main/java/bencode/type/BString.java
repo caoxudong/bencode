@@ -14,6 +14,20 @@ package bencode.type;
  * @author caoxudong
  * @since 0.1.0
  */
-public class BString implements BType {
+public class BString implements BType<String> {
 
+  public static final char DELIMITER = ':';
+  
+  private String value;
+  
+  @Override
+  public String getValue() {
+    return value;
+  }
+  
+  @Override
+  public void setValue(String value) {
+    this.value = value;
+  }
+  
 }

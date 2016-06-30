@@ -1,5 +1,7 @@
 package bencode.type;
 
+import java.util.LinkedList;
+
 /**
  * <p>B编码的列表类型。
  * 
@@ -13,6 +15,21 @@ package bencode.type;
  * @author caoxudong
  * @since 0.1.0
  */
-public class BList implements BType {
+public class BList implements BType<LinkedList<BType<?>>> {
 
+  public static final char PREFIX = 'l';
+  public static final char SUFFIX = 'e';
+  
+  private LinkedList<BType<?>> value;
+  
+  @Override
+  public LinkedList<BType<?>> getValue() {
+    return this.value;
+  }
+  
+  @Override
+  public void setValue(LinkedList<BType<?>> value) {
+    this.value = value;
+  }
+  
 }
