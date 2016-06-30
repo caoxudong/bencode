@@ -10,8 +10,8 @@ import java.util.TreeMap;
  *  <li>字典的基本格式为"d${contents}e"</li>
  *  <li>key必须是字符串类型，且按照字典顺序排列</li>
  *  <li>字典元素的key和value紧跟在一起，并无特殊分隔符</li>
- *  <li>示例： "bar->spam" -> "d3:bar4:spame", "foo:42" -> "d3:fooi42ee", 
- *  "bar->spam, foo->42" -> "d3:bar4:spam3:fooi42ee"</li>
+ *  <li>示例： "bar-&gt;spam" -&gt; "d3:bar4:spame", "foo:42" -&gt; "d3:fooi42ee", 
+ *  "bar-&gt;spam, foo-&gt;42" -&gt; "d3:bar4:spam3:fooi42ee"</li>
  * </ul>
  *
  * @author caoxudong
