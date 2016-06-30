@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 
 import bencode.exception.BEncodeFormatException;
 import bencode.type.BInteger;
+import bencode.type.BString;
 
 public class ParserTest {
   private Parser parser = new Parser();
@@ -30,6 +31,30 @@ public class ParserTest {
           "i32".getBytes(), 0, null, null, BEncodeFormatException.class},
           new Object[] {
           "ie".getBytes(), 0, null, null, BEncodeFormatException.class},
+    };
+  }
+  
+  @DataProvider
+  private Object[][] parseStringTestDate() {
+    return new Object[][] {
+      new Object[] {
+          "9:shdyfngkc".getBytes(), 0, "shdyfngkc", 11, null
+      },
+      new Object[] {
+          "11:djdj39f029c".getBytes(), 0, "djdj39f029c", 14, null
+      },
+      new Object[] {
+          "sss11:djdj39f029c".getBytes(), 3, "djdj39f029c", 14, null
+      },
+      new Object[] {
+          "4:22".getBytes(), 0, null, null, BEncodeFormatException.class
+      },
+      new Object[] {
+          "4".getBytes(), 0, null, null, BEncodeFormatException.class
+      },
+      new Object[] {
+          "4:".getBytes(), 0, null, null, BEncodeFormatException.class
+      },
     };
   }
   
@@ -71,8 +96,25 @@ public class ParserTest {
     throw new RuntimeException("Test not implemented");
   }
 
-  @Test(enabled = false)
-  public void parseString(final byte[] content, int offset) {
-    throw new RuntimeException("Test not implemented");
+  @Test(dataProvider = "parseStringTestDate")
+  public void parseString(final byte[] content, int offset, 
+      String expectedValue, Integer expectedContentLength, 
+      Class<?> expectedClass) {
+    ParseResultTumple<BString> parseResult = null;
+    Class<?> threwExceptionClass = null;
+    try {
+      parseResult = parser.parseString(content, offset);
+    } catch (BEncodeFormatException e) {
+      threwExceptionClass = e.getClass();
+    }
+    
+    if (null != expectedClass) {
+      Assert.assertEquals(threwExceptionClass, expectedClass);
+    } else {
+      Assert.assertNotNull(parseResult);
+      Assert.assertEquals(
+          expectedContentLength, Integer.valueOf(parseResult.length));
+      Assert.assertEquals(expectedValue, parseResult.content.getValue());
+    }
   }
 }

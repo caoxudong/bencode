@@ -1,5 +1,6 @@
 package bencode.parse;
 
+import java.nio.charset.Charset;
 import java.util.LinkedList;
 
 import org.slf4j.Logger;
@@ -157,7 +158,38 @@ public class Parser {
 
   public ParseResultTumple<BString> parseString(
       final byte[] content, int offset) {
-    return null;
+    int i = offset;
+    int value = 0;
+    int contentLength = content.length;
+
+    BString bString = null; 
+    do {
+      byte current = content[i++];
+      if (BString.DELIMITER != current) {
+        value = value * 10 + (current - '0');
+      } else {
+        if ((contentLength - i + 1) < value) {
+          logger.error("Parsing string unfinished when reaching the end");
+          throw new BEncodeFormatException(
+              "Parsing string unfinished when reaching the end");
+        }
+        bString = new BString();
+        String str = new String(content, i, value, Charset.forName("UTF-8"));
+        bString.setValue(str);
+        break;
+      }
+    } while (i < contentLength);
+    
+    if (null == bString) {
+      logger.error("Parsing string unfinished when reaching the end");
+      throw new BEncodeFormatException(
+          "Parsing string unfinished when reaching the end");
+    }
+    
+    ParseResultTumple<BString> result = new ParseResultTumple<>();
+    result.content = bString;
+    result.length = i + value - offset;
+    return result;
   }
 
   public ParseResultTumple<BList> parseList(
