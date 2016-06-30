@@ -83,9 +83,11 @@ public class Parser {
 
         default:
           logger.error(
-              "Unexpected char in bencode, char = {}, index = {}", 
+              "Unexpected char in bencode, char = {}, pos = {}", 
               current, i);
-          throw new BEncodeFormatException("Unexpected char in bencode");
+          throw new BEncodeFormatException(
+              "Unexpected char in bencode, char = " 
+                  + (char)current + ", pos = " + i);
       }
     }
     return result;
@@ -98,9 +100,12 @@ public class Parser {
     boolean isNagetive = false;
 
     if (i >= contentLength) {
-      logger.error("Parsing integer unfinished when reaching the end");
+      logger.error(
+          "Parsing integer unfinished when reaching the end, starting pos = {}", 
+          offset);
       throw new BEncodeFormatException(
-          "Parsing integer unfinished when reaching the end");
+          "Parsing integer unfinished when reaching the end, starting pos = " 
+              + offset);
     }
     
     if ('-' == content[i]) {
@@ -109,9 +114,9 @@ public class Parser {
     }
 
     if (BInteger.SUFFIX == content[i]) {
-      logger.error("Numbers not found when parsing integer.");
+      logger.error("Numbers not found when parsing integer, pos = {}", i);
       throw new BEncodeFormatException(
-          "Numbers not found when parsing integer.");
+          "Numbers not found when parsing integer, pos = " + i);
     }
     
     BInteger bInteger = null;
@@ -122,9 +127,10 @@ public class Parser {
         bInteger = new BInteger();
         if (isNagetive) {
           if (0 == value) {
-            logger.error("Find invalid nagetive-zero when parsing integer.");
+            logger.error(
+                "Find invalid nagetive-zero when parsing integer, pos = {}", i); 
             throw new BEncodeFormatException(
-                "Find invalid nagetive-zero when parsing integer.");
+                "Find invalid nagetive-zero when parsing integer, pos = " + i); 
           } else {
             value *= -1;
           }
@@ -134,9 +140,10 @@ public class Parser {
       } else {
         if ((i == pin) && ('0' == current) 
             && (i < contentLength) && (BInteger.SUFFIX != content[i + 1])) {
-          logger.error("Find unexpected pre-zero when parsing integer.");
+          logger.error(
+              "Find unexpected pre-zero when parsing integer, pos = {}", i);
           throw new BEncodeFormatException(
-              "Find unexpected pre-zero when parsing integer.");
+              "Find unexpected pre-zero when parsing integer, pos = " + i);
         } else {
           value = value * 10 + (current - '0');
         }
@@ -145,9 +152,12 @@ public class Parser {
     } while(i < contentLength);
     
     if (null == bInteger) {
-      logger.error("Parsing integer unfinished when reaching the end");
+      logger.error(
+          "Parsing integer unfinished when reaching the end, starting pos = {}", 
+          offset);
       throw new BEncodeFormatException(
-          "Parsing integer unfinished when reaching the end");
+          "Parsing integer unfinished when reaching the end, starting post = " 
+              + offset);
     }
     
     ParseResultTumple<BInteger> result = new ParseResultTumple<>();
@@ -169,9 +179,13 @@ public class Parser {
         value = value * 10 + (current - '0');
       } else {
         if ((contentLength - i + 1) < value) {
-          logger.error("Parsing string unfinished when reaching the end");
+          logger.error(
+              "Parsing string unfinished when reaching the end, "
+                  + "starting pos = {}", 
+              offset);
           throw new BEncodeFormatException(
-              "Parsing string unfinished when reaching the end");
+              "Parsing string unfinished when reaching the end, "
+                  + "starting pos = " + offset);
         }
         bString = new BString();
         String str = new String(content, i, value, Charset.forName("UTF-8"));
@@ -181,9 +195,13 @@ public class Parser {
     } while (i < contentLength);
     
     if (null == bString) {
-      logger.error("Parsing string unfinished when reaching the end");
+      logger.error(
+          "Parsing string unfinished when reaching the end, "
+              + "starting pos = {}", 
+          offset);
       throw new BEncodeFormatException(
-          "Parsing string unfinished when reaching the end");
+          "Parsing string unfinished when reaching the end, "
+              + "starting pos = " + offset);
     }
     
     ParseResultTumple<BString> result = new ParseResultTumple<>();
