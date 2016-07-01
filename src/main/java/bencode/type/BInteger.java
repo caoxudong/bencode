@@ -25,6 +25,14 @@ public class BInteger implements BType<Integer> {
   public static final char PREFIX = 'i';
   public static final char SUFFIX = 'e';
 
+  public BInteger() {
+  }
+  
+  public BInteger(int i) {
+    this.content = i;
+    this.contentLength = 2 + String.valueOf(i).length();
+  }
+  
   private Integer content;
   private int contentLength = 2;
 

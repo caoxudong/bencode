@@ -17,25 +17,33 @@ package bencode.type;
 public class BString implements BType<String> {
 
   public static final char DELIMITER = ':';
+
+  public BString() {
+  }
   
-  private String value;
-  private int valueLength = 0;
+  public BString(String content) {
+    this.content = content;
+    this.contentLength = content.length() + 1;
+  }
+  
+  private String content;
+  private int contentLength = 0;
   
   @Override
   public String getContent() {
-    return value;
+    return content;
   }
   
   @Override
   public void setContent(String value) {
-    this.value = value;
+    this.content = value;
     int strLength = value.length();
-    this.valueLength = String.valueOf(strLength).length() + 1 + strLength;
+    this.contentLength = String.valueOf(strLength).length() + 1 + strLength;
   }
 
   @Override
   public int getContentLength() {
-    return valueLength;
+    return contentLength;
   }
   
 }
