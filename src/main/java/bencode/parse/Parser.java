@@ -10,6 +10,7 @@ import bencode.type.BDictionary;
 import bencode.type.BInteger;
 import bencode.type.BList;
 import bencode.type.BString;
+import bencode.type.BType;
 
 /**
  * <p>
@@ -27,62 +28,73 @@ public class Parser {
    * 返回解析结果，并增加相应的偏移量。
    * @param content 待解析的内容
    * @param offset 偏移量，从该偏移量开始解析
+   * @param parseLength 指定解析的长度，达到该长度后，则停止解析
    * @return 解析出的数据
    * @since 0.1.0
    */
-  public BList parseNext(final byte[] content, int offset) {
+  public BList parse(final byte[] content, int offset, int parseLength) {
     BList result = new BList();
-    for (int i = offset; i < content.length;) {
-      byte current = content[i];
-      switch (current) {
-        case 'i': {
-          // integer
-          BInteger bInteger = parseInt(content, i);
-          i += bInteger.getContentLength();
-          result.add(bInteger);
-          break;
-        }
+    for (int i = offset; i < parseLength;) {
+      BType<?> element = parseNext(content, i);
+      i += element.getContentLength();
+      result.add(element);
+    }
+    return result;
+  }
+  
+  /**
+   * <p>只解析出下一个B编码的数据类型。
+   * 
+   * @param content 带解析的内容
+   * @param offset  偏移量，从该偏移量开始解析
+   * @return        解析出的数据
+   * @since 0.1.0
+   */
+  private BType<?> parseNext(final byte[] content, int offset) {
+    byte current = content[offset];
+    BType<?> result = null;
+    switch (current) {
+      case 'i': {
+        // integer
+        result = parseInt(content, offset);
+        break;
+      }
 
-        case 'l': {
-          // list
-          BList bList = parseList(content, i);
-          i += bList.getContentLength();
-          result.add(bList);
-          break;
-        }
+      case 'l': {
+        // list
+        result = parseList(content, offset);
+        break;
+      }
 
-        case 'd': {
-          // dictionary
-          BDictionary bDictionary = parseDic(content, i);
-          i += bDictionary.getContentLength();
-          result.add(bDictionary);
-          break;
-        }
+      case 'd': {
+        // dictionary
+        result = parseDic(content, offset);
+        break;
+      }
 
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9': {
-          // string
-          BString bString = parseString(content, i);
-          i += bString.getContentLength();
-          result.add(bString);
-          break;
-        }
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9': {
+        // string
+        result = parseString(content, offset);
+        break;
+      }
 
-        default:
-          logger.error(
-              "Unexpected char in bencode, char = {}, pos = {}", 
-              current, i);
-          throw new BEncodeFormatException(
-              "Unexpected char in bencode, char = " 
-                  + (char)current + ", pos = " + i);
+      default: {
+        logger.error(
+            "Unexpected char in bencode when detemining bencode type, "
+                + "char = {}, pos = {}", 
+            current, offset);
+        throw new BEncodeFormatException(
+            "Unexpected char in bencode, when detemining bencode type, char = " 
+                + (char)current + ", pos = " + offset);
       }
     }
     return result;
@@ -220,7 +232,42 @@ public class Parser {
    * @since 0.1.0
    */
   public BList parseList(final byte[] content, int offset) {
-    return null;
+    BList bList = new BList();
+    int i = offset + 1;
+    int contentLength = content.length;
+    
+    if (i >= contentLength) {
+      logger.error(
+          "Parsing list unfinished when reaching the end, "
+              + "starting pos = {}", 
+          offset);
+      throw new BEncodeFormatException(
+          "Parsing string unfinished when reaching the end, "
+              + "starting pos = " + offset);
+    }
+    
+    if (BList.SUFFIX == content[i]) {
+      return bList;
+    }
+    
+    while (true) {
+      BType<?> bElement = parseNext(content, i);
+      bList.add(bElement);
+      i += bElement.getContentLength();
+      if (i >= contentLength) {
+        logger.error(
+            "Parsing list unfinished when reaching the end, "
+                + "starting pos = {}", 
+            offset);
+        throw new BEncodeFormatException(
+            "Parsing string unfinished when reaching the end, "
+                + "starting pos = " + offset);
+      } else if (content[i] == BList.SUFFIX) {
+        break;
+      }
+    }
+    
+    return bList;
   }
 
   public BDictionary parseDic(final byte[] content, int offset) {

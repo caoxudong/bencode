@@ -36,7 +36,7 @@ public class BList implements BType<LinkedList<BType<?>>> {
       newValueLength += e.getContentLength();
     }
     this.content = value;
-    this.contentLength = newValueLength;
+    this.contentLength = newValueLength + 2;
   }
   
   @Override

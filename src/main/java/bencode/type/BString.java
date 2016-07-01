@@ -46,4 +46,13 @@ public class BString implements BType<String> {
     return contentLength;
   }
   
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof BString) {
+      String targetContent = ((BString)obj).content;
+      return content.equals(targetContent);
+    }
+    return false;
+  }
+  
 }
