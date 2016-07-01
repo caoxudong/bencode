@@ -15,7 +15,7 @@ import bencode.type.BType;
 
 /**
  * <p>
- * 解析器，将一段字节数组转换为B编码的数据。
+ * 解析器，将一段字节数组转换为B编码的数据。https://en.wikipedia.org/wiki/Bencode
  *
  * @author caoxudong
  * @since 0.1.0
@@ -25,7 +25,8 @@ public class Parser {
   private static Logger logger = LoggerFactory.getLogger(Parser.class);
   
   /**
-   * 
+   * <p>逐字节解析，遇到相应的类型前缀后，就调用目标类型的解析方法完成解析任务，
+   * 返回解析结果，并增加相应的偏移量。
    * @param content 待解析的内容
    * @param offset 偏移量，从该偏移量开始解析
    * @return 解析出的数据
@@ -93,6 +94,13 @@ public class Parser {
     return result;
   }
 
+  /**
+   * <p>解析整数。
+   * @param content
+   * @param offset
+   * @return
+   * @since 0.1.0
+   */
   public ParseResultTumple<BInteger> parseInt(
       final byte[] content, int offset) {
     int i = offset + 1, pin = i;
@@ -166,6 +174,13 @@ public class Parser {
     return result;
   }
 
+  /**
+   * 解析字符串数据
+   * @param content     带解析的字节数组
+   * @param offset      偏移量，从某个位置开始解析
+   * @return            解析结果
+   * @since 0.1.0
+   */
   public ParseResultTumple<BString> parseString(
       final byte[] content, int offset) {
     int i = offset;
