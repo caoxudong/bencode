@@ -17,20 +17,30 @@ import java.util.TreeMap;
  * @author caoxudong
  * @since 0.1.0
  */
-public class BDictionary implements BType<TreeMap<String, BType<?>>> {
+public class BDictionary implements BType<TreeMap<BString, BType<?>>> {
 
   public static final char PREFIX = 'd';
   public static final char SUFFIX = 'e';
   
-  private TreeMap<String, BType<?>> value;
+  private TreeMap<BString, BType<?>> content = new TreeMap<>();
+  private int contentLength = 2;
   
   @Override
-  public TreeMap<String, BType<?>> getValue() {
-    return this.value;
+  public TreeMap<BString, BType<?>> getContent() {
+    return this.content;
   }
   @Override
-  public void setValue(TreeMap<String, BType<?>> value) {
-    this.value = value;
+  public void setContent(TreeMap<BString, BType<?>> content) {
+    this.content = content;
+  }
+  
+  @Override
+  public int getContentLength() {
+    return this.contentLength;
+  }
+
+  public BType<?> put(BString key, BType<?> value) {
+    return this.content.put(key, value);
   }
   
 }

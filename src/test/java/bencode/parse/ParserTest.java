@@ -68,7 +68,7 @@ public class ParserTest {
       final byte[] content, int offset, 
       Integer expectedValue, Integer expectedContentLength, 
       Class<?> expectedClass) {
-    ParseResultTumple<BInteger> parseResult = null;
+    BInteger parseResult = null;
     Class<?> threwExceptionClass = null;
     try {
       parseResult = parser.parseInt(content, offset);
@@ -81,8 +81,9 @@ public class ParserTest {
     } else {
       Assert.assertNotNull(parseResult);
       Assert.assertEquals(
-          expectedContentLength, Integer.valueOf(parseResult.length));
-      Assert.assertEquals(expectedValue, parseResult.content.getValue());
+          expectedContentLength, 
+          Integer.valueOf(parseResult.getContentLength()));
+      Assert.assertEquals(expectedValue, parseResult.getContent());
     }
   }
 
@@ -100,7 +101,7 @@ public class ParserTest {
   public void parseString(final byte[] content, int offset, 
       String expectedValue, Integer expectedContentLength, 
       Class<?> expectedClass) {
-    ParseResultTumple<BString> parseResult = null;
+    BString parseResult = null;
     Class<?> threwExceptionClass = null;
     try {
       parseResult = parser.parseString(content, offset);
@@ -113,8 +114,9 @@ public class ParserTest {
     } else {
       Assert.assertNotNull(parseResult);
       Assert.assertEquals(
-          expectedContentLength, Integer.valueOf(parseResult.length));
-      Assert.assertEquals(expectedValue, parseResult.content.getValue());
+          expectedContentLength, 
+          Integer.valueOf(parseResult.getContentLength()));
+      Assert.assertEquals(expectedValue, parseResult.getContent());
     }
   }
 }

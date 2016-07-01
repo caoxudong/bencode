@@ -1,5 +1,6 @@
 package bencode.type;
 
+import java.util.Collection;
 import java.util.LinkedList;
 
 /**
@@ -20,16 +21,39 @@ public class BList implements BType<LinkedList<BType<?>>> {
   public static final char PREFIX = 'l';
   public static final char SUFFIX = 'e';
   
-  private LinkedList<BType<?>> value;
+  private LinkedList<BType<?>> content = new LinkedList<>();
+  private int contentLength = 2;
   
   @Override
-  public LinkedList<BType<?>> getValue() {
-    return this.value;
+  public LinkedList<BType<?>> getContent() {
+    return this.content;
   }
   
   @Override
-  public void setValue(LinkedList<BType<?>> value) {
-    this.value = value;
+  public void setContent(LinkedList<BType<?>> value) {
+    int newValueLength = 0;
+    for (BType<?> e: value) {
+      newValueLength += e.getContentLength();
+    }
+    this.content = value;
+    this.contentLength = newValueLength;
+  }
+  
+  @Override
+  public int getContentLength() {
+    return contentLength;
+  }
+  
+  public void add(BType<?> bElement) {
+    this.content.add(bElement);
+    this.contentLength += bElement.getContentLength();
+  }
+  
+  public void addAll(Collection<? extends BType<?>> list) {
+    this.content.addAll(list);
+    for (BType<?> e: content) {
+      this.contentLength += e.getContentLength();
+    }
   }
   
 }

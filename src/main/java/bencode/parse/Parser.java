@@ -1,7 +1,6 @@
 package bencode.parse;
 
 import java.nio.charset.Charset;
-import java.util.LinkedList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,6 @@ import bencode.type.BDictionary;
 import bencode.type.BInteger;
 import bencode.type.BList;
 import bencode.type.BString;
-import bencode.type.BType;
 
 /**
  * <p>
@@ -32,35 +30,32 @@ public class Parser {
    * @return 解析出的数据
    * @since 0.1.0
    */
-  public LinkedList<BType<?>> parseNext(final byte[] content, int offset) {
-    LinkedList<BType<?>> result = new LinkedList<>();
+  public BList parseNext(final byte[] content, int offset) {
+    BList result = new BList();
     for (int i = offset; i < content.length;) {
       byte current = content[i];
       switch (current) {
         case 'i': {
           // integer
-          ParseResultTumple<BInteger> parseResult =
-              parseInt(content, i);
-          i += parseResult.length;
-          result.add(parseResult.content);
+          BInteger bInteger = parseInt(content, i);
+          i += bInteger.getContentLength();
+          result.add(bInteger);
           break;
         }
 
         case 'l': {
           // list
-          ParseResultTumple<BList> parseResult = 
-              parseList(content, i);
-          i += parseResult.length;
-          result.add(parseResult.content);
+          BList bList = parseList(content, i);
+          i += bList.getContentLength();
+          result.add(bList);
           break;
         }
 
         case 'd': {
           // dictionary
-          ParseResultTumple<BDictionary> parseResult =
-              parseDic(content, i);
-          i += parseResult.length;
-          result.add(parseResult.content);
+          BDictionary bDictionary = parseDic(content, i);
+          i += bDictionary.getContentLength();
+          result.add(bDictionary);
           break;
         }
 
@@ -75,10 +70,9 @@ public class Parser {
         case '8':
         case '9': {
           // string
-          ParseResultTumple<BString> parseResult =
-              parseString(content, i);
-          i += parseResult.length;
-          result.add(parseResult.content);
+          BString bString = parseString(content, i);
+          i += bString.getContentLength();
+          result.add(bString);
           break;
         }
 
@@ -96,13 +90,12 @@ public class Parser {
 
   /**
    * <p>解析整数。
-   * @param content
-   * @param offset
-   * @return
+   * @param content     带解析的字节数组
+   * @param offset      偏移量，从某个位置开始解析
+   * @return            解析结果
    * @since 0.1.0
    */
-  public ParseResultTumple<BInteger> parseInt(
-      final byte[] content, int offset) {
+  public BInteger parseInt(final byte[] content, int offset) {
     int i = offset + 1, pin = i;
     int contentLength = content.length;
     boolean isNagetive = false;
@@ -143,7 +136,7 @@ public class Parser {
             value *= -1;
           }
         }
-        bInteger.setValue(value);
+        bInteger.setContent(value);
         break;
       } else {
         if ((i == pin) && ('0' == current) 
@@ -168,10 +161,7 @@ public class Parser {
               + offset);
     }
     
-    ParseResultTumple<BInteger> result = new ParseResultTumple<>();
-    result.content = bInteger;
-    result.length = i - offset + 1;
-    return result;
+    return bInteger;
   }
 
   /**
@@ -181,8 +171,7 @@ public class Parser {
    * @return            解析结果
    * @since 0.1.0
    */
-  public ParseResultTumple<BString> parseString(
-      final byte[] content, int offset) {
+  public BString parseString(final byte[] content, int offset) {
     int i = offset;
     int value = 0;
     int contentLength = content.length;
@@ -204,7 +193,7 @@ public class Parser {
         }
         bString = new BString();
         String str = new String(content, i, value, Charset.forName("UTF-8"));
-        bString.setValue(str);
+        bString.setContent(str);
         break;
       }
     } while (i < contentLength);
@@ -219,19 +208,22 @@ public class Parser {
               + "starting pos = " + offset);
     }
     
-    ParseResultTumple<BString> result = new ParseResultTumple<>();
-    result.content = bString;
-    result.length = i + value - offset;
-    return result;
+    return bString;
   }
 
-  public ParseResultTumple<BList> parseList(
-      final byte[] content, int offset) {
+  /**
+   * <p>解析列表数据。由于列表数据中可能包含更复杂的结构，
+   * 因此会调用{@link Parser#parseNext(byte[], int)}完成解析任务。
+   * @param content     带解析的字节数组
+   * @param offset      偏移量，从某个位置开始解析
+   * @return            解析结果
+   * @since 0.1.0
+   */
+  public BList parseList(final byte[] content, int offset) {
     return null;
   }
 
-  public ParseResultTumple<BDictionary> parseDic(
-      final byte[] content, int offset) {
+  public BDictionary parseDic(final byte[] content, int offset) {
     return null;
   }
 

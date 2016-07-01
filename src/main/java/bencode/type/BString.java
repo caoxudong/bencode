@@ -19,15 +19,23 @@ public class BString implements BType<String> {
   public static final char DELIMITER = ':';
   
   private String value;
+  private int valueLength = 0;
   
   @Override
-  public String getValue() {
+  public String getContent() {
     return value;
   }
   
   @Override
-  public void setValue(String value) {
+  public void setContent(String value) {
     this.value = value;
+    int strLength = value.length();
+    this.valueLength = String.valueOf(strLength).length() + 1 + strLength;
+  }
+
+  @Override
+  public int getContentLength() {
+    return valueLength;
   }
   
 }

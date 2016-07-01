@@ -25,26 +25,33 @@ public class BInteger implements BType<Integer> {
   public static final char PREFIX = 'i';
   public static final char SUFFIX = 'e';
 
-  private Integer value;
+  private Integer content;
+  private int contentLength = 2;
 
-  public Integer getValue() {
-    return value;
+  public Integer getContent() {
+    return content;
   }
   
-  public void setValue(Integer t) {
-    this.value = t;
+  public void setContent(Integer t) {
+    this.content = t;
+    this.contentLength = String.valueOf(t).length() + 2;
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof BInteger) {
-      return value == ((BInteger) obj).value.intValue();
+      return content == ((BInteger) obj).content.intValue();
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return Integer.hashCode(value);
+    return Integer.hashCode(content);
+  }
+
+  @Override
+  public int getContentLength() {
+    return contentLength;
   }
 }
