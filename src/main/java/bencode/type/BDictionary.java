@@ -38,9 +38,28 @@ public class BDictionary implements BType<TreeMap<BString, BType<?>>> {
   public int getContentLength() {
     return this.contentLength;
   }
+  
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (!(obj instanceof BDictionary)) {
+      return false;
+    }
+    return this.content.equals(((BDictionary)obj).content);
+  }
 
   public BType<?> put(BString key, BType<?> value) {
     return this.content.put(key, value);
+  }
+  
+  public BType<?> get(BString key) {
+    return this.content.get(key);
+  }
+  
+  public int size() {
+    return this.content.size();
   }
   
 }

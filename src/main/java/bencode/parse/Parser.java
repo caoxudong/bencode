@@ -271,7 +271,48 @@ public class Parser {
   }
 
   public BDictionary parseDic(final byte[] content, int offset) {
-    return null;
+    BDictionary bDictionary = new BDictionary();
+    int i = offset + 1;
+    int contentLength = content.length;
+    
+    if (i >= contentLength) {
+      logger.error(
+          "Parsing dictionary unfinished when reaching the end, "
+              + "starting pos = {}", 
+          offset);
+      throw new BEncodeFormatException(
+          "Parsing dictionary unfinished when reaching the end, "
+              + "starting pos = " + offset);
+    }
+    
+    if (BDictionary.SUFFIX == content[i]) {
+      return bDictionary;
+    }
+    
+    while (true) {
+      // parse key
+      BString key = parseString(content, i);
+      i += key.getContentLength();
+      
+      // parse value
+      BType<?> value = parseNext(content, i);
+      
+      bDictionary.put(key, value);
+      
+      if (i >= contentLength) {
+        logger.error(
+            "Parsing list unfinished when reaching the end, "
+                + "starting pos = {}", 
+            offset);
+        throw new BEncodeFormatException(
+            "Parsing string unfinished when reaching the end, "
+                + "starting pos = " + offset);
+      } else if (content[i] == BDictionary.SUFFIX) {
+        break;
+      }
+    }
+    
+    return bDictionary;
   }
 
 }
