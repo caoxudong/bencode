@@ -1,8 +1,5 @@
 package bencode.parse;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -12,7 +9,6 @@ import bencode.type.BDictionary;
 import bencode.type.BInteger;
 import bencode.type.BList;
 import bencode.type.BString;
-import bencode.type.BType;
 
 public class ParserTest {
   private Parser parser = new Parser();
@@ -94,9 +90,54 @@ public class ParserTest {
     };
   }
   
-  @Test(enabled = false)
-  public void parseDic(final byte[] content, int offset) {
-    throw new RuntimeException("Test not implemented");
+  @DataProvider
+  private Object[][] parseDictionaryTestData() {
+    return new Object[][] {
+        new Object[] {
+            "d3:bar4:spame".getBytes(), 0, 
+            new BDictionary() {
+              {
+                this.put(new BString("bar"), new BString("spame"));
+              }
+            },
+            13, null
+        },
+        new Object[] {
+            "sssd3:fooi42ee".getBytes(), 3, 
+            new BDictionary() {
+              {
+                this.put(new BString("foo"), new BInteger(42));
+              }
+            }, 
+            14, null
+        },
+        new Object[] {
+            "de".getBytes(), 0, new BDictionary(), 2, null
+        },
+        new Object[] {
+            "d".getBytes(), 0, null, null, BEncodeFormatException.class
+        },
+    };
+  }
+  
+  @Test(dataProvider = "parseDictionaryTestData")
+  public void parseDic(final byte[] content, int offset, 
+      BDictionary expectedValue, Integer expectedContentLength, 
+      Class<?> expectedClass) {
+    BDictionary parseResult= null;
+    Class<?> threwExceptionClass = null;
+    try {
+      parseResult = parser.parseDic(content, offset);
+    } catch (BEncodeFormatException e) {
+      threwExceptionClass = e.getClass();
+    }
+    
+    if (null != expectedClass) {
+      Assert.assertEquals(threwExceptionClass, expectedClass);
+    } else {
+      Assert.assertNotNull(parseResult);
+      Assert.assertEquals(parseResult, expectedValue);
+    }
   }
 
   @Test(dataProvider = "parseIntTestData")
@@ -140,49 +181,7 @@ public class ParserTest {
       Assert.assertEquals(threwExceptionClass, expectedClass);
     } else {
       Assert.assertNotNull(parseResult);
-      
-      LinkedList<BType<?>> contentParsed = parseResult.getContent();
-      LinkedList<BType<?>> contentExpected = expectedValue.getContent();
-      Assert.assertEquals(contentParsed.size(), contentExpected.size());
-
-      // BFS，检查内容列表的内容是否相同
-      LinkedList<BType<?>> contentParsedCheckList = new LinkedList<>();
-      contentParsedCheckList.addAll(contentParsed);
-      LinkedList<BType<?>> contentExpectedCheckList = new LinkedList<>();
-      contentExpectedCheckList.addAll(contentExpected);
-      Iterator<BType<?>> contentParsedCheckListIterator =
-          contentParsedCheckList.iterator();
-      Iterator<BType<?>> contentExpectedCheckListIterator =
-          contentExpectedCheckList.iterator();
-      while (contentParsedCheckListIterator.hasNext() 
-          && contentExpectedCheckListIterator.hasNext()) {
-        BType<?> elementExpected = contentExpectedCheckListIterator.next();
-        Class<?> elementExpectedClass = elementExpected.getClass();
-        elementExpected.getContent();
-        BType<?> elementParsed = contentParsedCheckListIterator.next();
-        Class<?> elementParsedClass = elementParsed.getClass();
-        
-        Assert.assertEquals(elementExpectedClass, elementParsedClass);
-        
-        if ((elementExpected instanceof BInteger) 
-            || (elementExpected instanceof BString)) {
-          Assert.assertEquals(elementExpected, elementParsed);
-        } else if (elementExpected instanceof BList) {
-          LinkedList<BType<?>> contentExpectedList = 
-              ((BList)elementExpected).getContent();
-          LinkedList<BType<?>> contentParsedList = 
-              ((BList)elementParsed).getContent();
-          int elementExpectedSize = contentExpectedList.size();
-          int elementParsedSize = contentParsedList.size();
-          
-          Assert.assertEquals(elementExpectedSize, elementParsedSize);
-          
-          contentParsedCheckList.addAll(contentParsedList);
-          contentExpectedCheckList.addAll(contentExpectedList);
-        } else if (elementExpected instanceof BDictionary){
-          throw new RuntimeException("Test not implemented");
-        }
-      }
+      Assert.assertEquals(parseResult, expectedValue);
     }
   }
 
