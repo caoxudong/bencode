@@ -1,5 +1,8 @@
 package bencode.parse;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -13,6 +16,15 @@ import bencode.type.BString;
 public class ParserTest {
   private Parser parser = new Parser();
 
+  @DataProvider
+  private Object[][] parseTestData() {
+    return new Object[][] {
+        new Object[] {
+            "demo.torrent"
+        },
+    };
+  }
+  
   @DataProvider
   private Object[][] parseIntTestData() {
     return new Object[][] {
@@ -97,7 +109,7 @@ public class ParserTest {
             "d3:bar4:spame".getBytes(), 0, 
             new BDictionary() {
               {
-                this.put(new BString("bar"), new BString("spame"));
+                this.put(new BString("bar"), new BString("spam"));
               }
             },
             13, null
@@ -140,7 +152,7 @@ public class ParserTest {
     }
   }
 
-  @Test(dataProvider = "parseIntTestData")
+  @Test(dataProvider = "parseIntTestData", enabled = false)
   public void parseInt(
       final byte[] content, int offset, 
       Integer expectedValue, Integer expectedContentLength, 
@@ -164,7 +176,7 @@ public class ParserTest {
     }
   }
 
-  @Test(dataProvider = "parseListTestData")
+  @Test(dataProvider = "parseListTestData", enabled = false)
   public void parseList(
       final byte[] content, int offset, 
       BList expectedValue, Integer expectedContentLength, 
@@ -185,7 +197,7 @@ public class ParserTest {
     }
   }
 
-  @Test(dataProvider = "parseStringTestData")
+  @Test(dataProvider = "parseStringTestData", enabled = false)
   public void parseString(final byte[] content, int offset, 
       String expectedValue, Integer expectedContentLength, 
       Class<?> expectedClass) {
@@ -207,5 +219,14 @@ public class ParserTest {
       Assert.assertEquals(expectedValue, parseResult.getContent());
     }
   }
-  
+
+  @Test(dataProvider = "parseTestData", enabled = false)
+  public void parse(String fileLocation) throws IOException {
+    InputStream inputStream =
+        ParserTest.class.getResourceAsStream(fileLocation);
+    byte[] content = new byte[Integer.MAX_VALUE];
+    inputStream.read(content);
+    parser.parse(content, 0, content.length);
+    inputStream.close();
+  }
 }

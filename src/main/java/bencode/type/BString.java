@@ -14,7 +14,7 @@ package bencode.type;
  * @author caoxudong
  * @since 0.1.0
  */
-public class BString implements BType<String> {
+public class BString implements BType<String>, Comparable<BString> {
 
   public static final char DELIMITER = ':';
 
@@ -54,5 +54,9 @@ public class BString implements BType<String> {
     }
     return false;
   }
-  
+
+  @Override
+  public int compareTo(BString o) {
+    return this.content.compareTo(((BString)o).content);
+  }
 }

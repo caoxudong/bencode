@@ -296,6 +296,7 @@ public class Parser {
       
       // parse value
       BType<?> value = parseNext(content, i);
+      i += value.getContentLength();
       
       bDictionary.put(key, value);
       
