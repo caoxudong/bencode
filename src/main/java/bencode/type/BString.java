@@ -1,43 +1,48 @@
 package bencode.type;
 
+import java.nio.charset.Charset;
+import java.util.Arrays;
+
 /**
- * <p>B编码的字符串类型。
+ * <p>
+ * B编码的字符串类型。
  * 
- * <p>格式如下：
+ * <p>
+ * 格式如下：
  * <ul>
- *  <li>字符串以"长度:内容"编码</li>
- *  <li>长度的值和数字编码方法一样，只是不允许负数</li>
- *  <li>内容就是字符串的内容，如字符串"spam"就会编码为"4:spam"</li>
- *  <li>默认情况下，B编码的字符串只支持ASCII字符</li>
+ * <li>字符串以"长度:内容"编码</li>
+ * <li>长度的值和数字编码方法一样，只是不允许负数</li>
+ * <li>内容就是字符串的内容，如字符串"spam"就会编码为"4:spam"</li>
+ * <li>默认情况下，B编码的字符串只支持ASCII字符</li>
  * </ul>
  *
  * @author caoxudong
  * @since 0.1.0
  */
-public class BString implements BType<String>, Comparable<BString> {
+public class BString implements BType<byte[]>, Comparable<BString> {
 
   public static final char DELIMITER = ':';
+  public static final String CHARSET_ASCII = "US-ASCII";
 
-  public BString() {
-  }
-  
-  public BString(String content) {
+  public BString() {}
+
+  public BString(byte[] content) {
     this.content = content;
-    this.contentLength = content.length() + 1;
+    this.contentLength = content.length + 1;
   }
-  
-  private String content;
+
+  private byte[] content;
   private int contentLength = 0;
-  
+
   @Override
-  public String getContent() {
+  public byte[] getContent() {
     return content;
   }
-  
+
   @Override
-  public void setContent(String value) {
+  public void setContent(byte[] value) {
     this.content = value;
-    int strLength = value.length();
+    int strLength = value.length;
     this.contentLength = String.valueOf(strLength).length() + 1 + strLength;
   }
 
@@ -45,23 +50,27 @@ public class BString implements BType<String>, Comparable<BString> {
   public int getContentLength() {
     return contentLength;
   }
-  
+
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof BString) {
-      String targetContent = ((BString)obj).content;
-      return content.equals(targetContent);
+      byte[] targetContent = ((BString) obj).content;
+      return Arrays.equals(targetContent, content);
     }
     return false;
   }
 
   @Override
   public int compareTo(BString o) {
-    return this.content.compareTo(((BString)o).content);
+    String selfContentStr = 
+        new String(this.content, Charset.forName(CHARSET_ASCII));
+    String targetContentStr = 
+        new String(o.content, Charset.forName(CHARSET_ASCII));
+    return selfContentStr.compareTo(targetContentStr);
   }
-  
+
   @Override
   public String toString() {
-    return content;
+    return new String(content, Charset.forName(CHARSET_ASCII));
   }
 }

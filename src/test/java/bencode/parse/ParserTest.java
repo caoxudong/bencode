@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 import bencode.exception.BEncodeFormatException;
 import bencode.type.BDictionary;
-import bencode.type.BInteger;
+import bencode.type.BNumber;
 import bencode.type.BList;
 import bencode.type.BString;
 
@@ -37,11 +37,11 @@ public class ParserTest {
           "i".getBytes(), 0, null, null, BEncodeFormatException.class},
       new Object[] {
           "dasd-i".getBytes(), 5, null, null, BEncodeFormatException.class},
-      new Object[] {"i43e".getBytes(), 0, 43, 4, null},
-      new Object[] {"i-43e".getBytes(), 0, -43, 5, null},
-      new Object[] {"321-i43e".getBytes(), 4, 43, 4, null},
-      new Object[] {"i0e".getBytes(), 0, 0, 3, null},
-      new Object[] {"i-0e".getBytes(), 0, 0, 4, BEncodeFormatException.class},
+      new Object[] {"i43e".getBytes(), 0, 43L, 4, null},
+      new Object[] {"i-43e".getBytes(), 0, -43L, 5, null},
+      new Object[] {"321-i43e".getBytes(), 4, 43L, 4, null},
+      new Object[] {"i0e".getBytes(), 0, 0L, 3, null},
+      new Object[] {"i-0e".getBytes(), 0, 0L, 4, BEncodeFormatException.class},
       new Object[] {
           "i000e".getBytes(), 0, null, null, BEncodeFormatException.class},
       new Object[] {
@@ -84,7 +84,7 @@ public class ParserTest {
             "l9:shdyfngkce".getBytes(), 0, 
             new BList() {
               {
-                this.add(new BString("shdyfngkc"));
+                this.add(new BString("shdyfngkc".getBytes()));
               }
             },
             13, null
@@ -93,7 +93,7 @@ public class ParserTest {
             "sssl11:djdj39f029ce".getBytes(), 3, 
             new BList() {
               {
-                this.add(new BString("djdj39f029c"));
+                this.add(new BString("djdj39f029c".getBytes()));
               }
             }, 
             16, null
@@ -114,7 +114,9 @@ public class ParserTest {
             "d3:bar4:spame".getBytes(), 0, 
             new BDictionary() {
               {
-                this.put(new BString("bar"), new BString("spam"));
+                this.put(
+                    new BString("bar".getBytes()), 
+                    new BString("spam".getBytes()));
               }
             },
             13, null
@@ -123,7 +125,7 @@ public class ParserTest {
             "sssd3:fooi42ee".getBytes(), 3, 
             new BDictionary() {
               {
-                this.put(new BString("foo"), new BInteger(42));
+                this.put(new BString("foo".getBytes()), new BNumber(42));
               }
             }, 
             14, null
@@ -140,12 +142,15 @@ public class ParserTest {
             0, 
             new BDictionary() {
                 {
-                  this.put(new BString("length"), new BInteger(66573515));
                   this.put(
-                      new BString("path"), 
+                      new BString("length".getBytes()), new BNumber(66573515));
+                  this.put(
+                      new BString("path".getBytes()), 
                       new BList() {
                         {
-                          this.add(new BString("h-animatrix-x264-sample.mkv"));
+                          this.add(
+                              new BString(
+                                  "h-animatrix-x264-sample.mkv".getBytes()));
                         }
                       });
                 }
@@ -176,14 +181,14 @@ public class ParserTest {
   }
 
   @Test(dataProvider = "parseIntTestData", enabled = false)
-  public void parseInt(
+  public void parseNumber(
       final byte[] content, int offset, 
-      Integer expectedValue, Integer expectedContentLength, 
+      Long expectedValue, Integer expectedContentLength, 
       Class<?> expectedClass) {
-    BInteger parseResult = null;
+    BNumber parseResult = null;
     Class<?> threwExceptionClass = null;
     try {
-      parseResult = parser.parseInt(content, offset);
+      parseResult = parser.parseNumber(content, offset);
     } catch (BEncodeFormatException e) {
       threwExceptionClass = e.getClass();
     }
@@ -243,7 +248,7 @@ public class ParserTest {
     }
   }
 
-  @Test(dataProvider = "parseTestData", enabled = false)
+  @Test(dataProvider = "parseTestData")
   public void parse(String fileLocation) 
       throws IOException, URISyntaxException {
     URL url = ParserTest.class.getResource(fileLocation);

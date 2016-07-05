@@ -20,42 +20,42 @@ package bencode.type;
  * @author caoxudong
  * @since 0.1.0
  */
-public class BInteger implements BType<Integer> {
+public class BNumber implements BType<Long> {
 
   public static final char PREFIX = 'i';
   public static final char SUFFIX = 'e';
 
-  public BInteger() {
+  public BNumber() {
   }
   
-  public BInteger(int i) {
+  public BNumber(long i) {
     this.content = i;
     this.contentLength = 2 + String.valueOf(i).length();
   }
   
-  private Integer content;
+  private Long content;
   private int contentLength = 2;
 
-  public Integer getContent() {
+  public Long getContent() {
     return content;
   }
   
-  public void setContent(Integer t) {
+  public void setContent(Long t) {
     this.content = t;
     this.contentLength = String.valueOf(t).length() + 2;
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof BInteger) {
-      return content == ((BInteger) obj).content.intValue();
+    if (obj instanceof BNumber) {
+      return content == ((BNumber) obj).content.longValue();
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return Integer.hashCode(content);
+    return Long.hashCode(content);
   }
 
   @Override

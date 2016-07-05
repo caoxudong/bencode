@@ -1,13 +1,13 @@
 package bencode.parse;
 
-import java.nio.charset.Charset;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import bencode.exception.BEncodeFormatException;
 import bencode.type.BDictionary;
-import bencode.type.BInteger;
+import bencode.type.BNumber;
 import bencode.type.BList;
 import bencode.type.BString;
 import bencode.type.BType;
@@ -55,8 +55,8 @@ public class Parser {
     BType<?> result = null;
     switch (current) {
       case 'i': {
-        // integer
-        result = parseInt(content, offset);
+        // number
+        result = parseNumber(content, offset);
         break;
       }
 
@@ -107,17 +107,17 @@ public class Parser {
    * @return            解析结果
    * @since 0.1.0
    */
-  public BInteger parseInt(final byte[] content, int offset) {
+  public BNumber parseNumber(final byte[] content, int offset) {
     int i = offset + 1, pin = i;
     int contentLength = content.length;
     boolean isNagetive = false;
 
     if (i >= contentLength) {
       logger.error(
-          "Parsing integer unfinished when reaching the end, starting pos = {}", 
+          "Parsing number unfinished when reaching the end, starting pos = {}", 
           offset);
       throw new BEncodeFormatException(
-          "Parsing integer unfinished when reaching the end, starting pos = " 
+          "Parsing number unfinished when reaching the end, starting pos = " 
               + offset);
     }
     
@@ -126,24 +126,24 @@ public class Parser {
       i++;
     }
 
-    if (BInteger.SUFFIX == content[i]) {
-      logger.error("Numbers not found when parsing integer, pos = {}", i);
+    if (BNumber.SUFFIX == content[i]) {
+      logger.error("Numbers not found when parsing number, pos = {}", i);
       throw new BEncodeFormatException(
-          "Numbers not found when parsing integer, pos = " + i);
+          "Numbers not found when parsing number, pos = " + i);
     }
     
-    BInteger bInteger = null;
-    int value = 0;
+    BNumber bInteger = null;
+    long value = 0;
     do {
       byte current = content[i];
-      if (BInteger.SUFFIX == current) {
-        bInteger = new BInteger();
+      if (BNumber.SUFFIX == current) {
+        bInteger = new BNumber();
         if (isNagetive) {
           if (0 == value) {
             logger.error(
-                "Find invalid nagetive-zero when parsing integer, pos = {}", i); 
+                "Find invalid nagetive-zero when parsing number, pos = {}", i); 
             throw new BEncodeFormatException(
-                "Find invalid nagetive-zero when parsing integer, pos = " + i); 
+                "Find invalid nagetive-zero when parsing number, pos = " + i); 
           } else {
             value *= -1;
           }
@@ -152,11 +152,11 @@ public class Parser {
         break;
       } else {
         if ((i == pin) && ('0' == current) 
-            && (i < contentLength) && (BInteger.SUFFIX != content[i + 1])) {
+            && (i < contentLength) && (BNumber.SUFFIX != content[i + 1])) {
           logger.error(
-              "Find unexpected pre-zero when parsing integer, pos = {}", i);
+              "Find unexpected pre-zero when parsing number, pos = {}", i);
           throw new BEncodeFormatException(
-              "Find unexpected pre-zero when parsing integer, pos = " + i);
+              "Find unexpected pre-zero when parsing number, pos = " + i);
         } else {
           value = value * 10 + (current - '0');
         }
@@ -166,16 +166,16 @@ public class Parser {
     
     if (null == bInteger) {
       logger.error(
-          "Parsing integer unfinished when reaching the end, starting pos = {}", 
+          "Parsing number unfinished when reaching the end, starting pos = {}", 
           offset);
       throw new BEncodeFormatException(
-          "Parsing integer unfinished when reaching the end, starting post = " 
+          "Parsing number unfinished when reaching the end, starting post = " 
               + offset);
     }
     
     logger.debug(
         "Parsing value, pos = {}, type = {}, value = {}, length = {}",
-        offset, BInteger.class, 
+        offset, BNumber.class, 
         bInteger.getContent(), bInteger.getContentLength());
     
     return bInteger;
@@ -209,8 +209,7 @@ public class Parser {
                   + "starting pos = " + offset);
         }
         bString = new BString();
-        String str = new String(content, i, value, Charset.forName("UTF-8"));
-        bString.setContent(str);
+        bString.setContent(Arrays.copyOfRange(content, i, i + value));
         break;
       }
     } while (i < contentLength);
