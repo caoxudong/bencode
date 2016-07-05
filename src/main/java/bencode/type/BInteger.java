@@ -62,4 +62,9 @@ public class BInteger implements BType<Integer> {
   public int getContentLength() {
     return contentLength;
   }
+  
+  @Override
+  public String toString() {
+    return content.toString();
+  }
 }

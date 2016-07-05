@@ -173,6 +173,11 @@ public class Parser {
               + offset);
     }
     
+    logger.debug(
+        "Parsing value, pos = {}, type = {}, value = {}, length = {}",
+        offset, BInteger.class, 
+        bInteger.getContent(), bInteger.getContentLength());
+    
     return bInteger;
   }
 
@@ -219,6 +224,11 @@ public class Parser {
           "Parsing string unfinished when reaching the end, "
               + "starting pos = " + offset);
     }
+    
+    logger.debug(
+        "Parsing value, pos = {}, type = {}, value = {}, length = {}",
+        offset, BString.class, 
+        bString.getContent(), bString.getContentLength());
     
     return bString;
   }
@@ -267,6 +277,11 @@ public class Parser {
       }
     }
     
+    logger.debug(
+        "Parsing value, pos = {}, type = {}, value = {}, length = {}",
+        offset, BList.class, 
+        bList.getContent(), bList.getContentLength());
+    
     return bList;
   }
 
@@ -312,6 +327,11 @@ public class Parser {
         break;
       }
     }
+    
+    logger.debug(
+        "Parsing value, pos = {}, type = {}, value = {}, length = {}",
+        offset, BDictionary.class, 
+        bDictionary.getContent(), bDictionary.getContentLength());
     
     return bDictionary;
   }

@@ -1,6 +1,7 @@
 package bencode.type;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
@@ -66,4 +67,20 @@ public class BList implements BType<LinkedList<BType<?>>> {
     }
     return this.content.equals(((BList)obj).content);
   }
+  
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("[");
+    Iterator<BType<?>> iterator = content.iterator();
+    while (iterator.hasNext()) {
+      BType<?> element = iterator.next();
+      sb.append(element.toString());
+      if (iterator.hasNext()) {
+        sb.append(", ");
+      }
+    }
+    sb.append("]");
+    return sb.toString();
+  }
+  
 }

@@ -1,7 +1,12 @@
 package bencode.parse;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -20,7 +25,7 @@ public class ParserTest {
   private Object[][] parseTestData() {
     return new Object[][] {
         new Object[] {
-            "demo.torrent"
+            "/demo.torrent"
         },
     };
   }
@@ -129,10 +134,28 @@ public class ParserTest {
         new Object[] {
             "d".getBytes(), 0, null, null, BEncodeFormatException.class
         },
+        new Object[] {
+            "d6:lengthi66573515e4:pathl27:h-animatrix-x264-sample.mkvee"
+                .getBytes(), 
+            0, 
+            new BDictionary() {
+                {
+                  this.put(new BString("length"), new BInteger(66573515));
+                  this.put(
+                      new BString("path"), 
+                      new BList() {
+                        {
+                          this.add(new BString("h-animatrix-x264-sample.mkv"));
+                        }
+                      });
+                }
+            }, 
+            58, null
+        },
     };
   }
   
-  @Test(dataProvider = "parseDictionaryTestData")
+  @Test(dataProvider = "parseDictionaryTestData", enabled = false)
   public void parseDic(final byte[] content, int offset, 
       BDictionary expectedValue, Integer expectedContentLength, 
       Class<?> expectedClass) {
@@ -221,12 +244,12 @@ public class ParserTest {
   }
 
   @Test(dataProvider = "parseTestData", enabled = false)
-  public void parse(String fileLocation) throws IOException {
-    InputStream inputStream =
-        ParserTest.class.getResourceAsStream(fileLocation);
-    byte[] content = new byte[Integer.MAX_VALUE];
-    inputStream.read(content);
-    parser.parse(content, 0, content.length);
-    inputStream.close();
+  public void parse(String fileLocation) 
+      throws IOException, URISyntaxException {
+    URL url = ParserTest.class.getResource(fileLocation);
+    URI uri = url.toURI();
+    Path path = Paths.get(uri);
+    byte[] data = Files.readAllBytes(path);
+    parser.parse(data, 0, data.length);
   }
 }

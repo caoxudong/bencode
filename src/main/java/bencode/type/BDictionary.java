@@ -1,5 +1,8 @@
 package bencode.type;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -32,6 +35,11 @@ public class BDictionary implements BType<TreeMap<BString, BType<?>>> {
   @Override
   public void setContent(TreeMap<BString, BType<?>> content) {
     this.content = content;
+    for (Entry<BString, BType<?>> entry: content.entrySet()) {
+      BString key = entry.getKey();
+      BType<?> value = entry.getValue();
+      this.contentLength += key.getContentLength() + value.getContentLength();
+    }
   }
   
   @Override
@@ -51,7 +59,17 @@ public class BDictionary implements BType<TreeMap<BString, BType<?>>> {
   }
 
   public BType<?> put(BString key, BType<?> value) {
-    return this.content.put(key, value);
+    if (!this.content.containsKey(key)) {
+      this.contentLength += key.getContentLength();
+    }
+    BType<?> previous = this.content.put(key, value);
+    if (null != previous) {
+      this.contentLength -= previous.getContentLength();
+    }
+    if (null != value) {
+      this.contentLength += value.getContentLength();    
+    }
+    return previous;
   }
   
   public BType<?> get(BString key) {
@@ -61,5 +79,23 @@ public class BDictionary implements BType<TreeMap<BString, BType<?>>> {
   public int size() {
     return this.content.size();
   }
-  
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("{");
+    Set<Entry<BString, BType<?>>> set = content.entrySet();
+    Iterator<Entry<BString, BType<?>>> iterator = set.iterator();
+    while (iterator.hasNext()) {
+      Entry<BString, BType<?>> entry = iterator.next();
+      BString key = entry.getKey();
+      BType<?> value = entry.getValue();
+      sb.append(key.toString()).append(":").append(value.toString());
+      if (iterator.hasNext()) {
+        sb.append(", ");
+      }
+    }
+    sb.append("}");
+    return sb.toString();
+  }
 }

@@ -59,4 +59,9 @@ public class BString implements BType<String>, Comparable<BString> {
   public int compareTo(BString o) {
     return this.content.compareTo(((BString)o).content);
   }
+  
+  @Override
+  public String toString() {
+    return content;
+  }
 }
