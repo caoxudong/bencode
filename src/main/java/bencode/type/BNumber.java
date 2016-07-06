@@ -15,7 +15,7 @@ package bencode.type;
  *
  * <p>
  * BInteger使用Integer存储实际数据，因为在比较对象的时候，
- * 应使用{@link BInteger#equals(Object)}方法。
+ * 应使用{@link BNumber#equals(Object)}方法。
  *
  * @author caoxudong
  * @since 0.1.0
