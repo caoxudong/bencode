@@ -57,13 +57,13 @@ public class ParserTest {
   private Object[][] parseStringTestData() {
     return new Object[][] {
       new Object[] {
-          "9:shdyfngkc".getBytes(), 0, "shdyfngkc", 11, null
+          "9:shdyfngkc".getBytes(), 0, "shdyfngkc".getBytes(), 11, null
       },
       new Object[] {
-          "11:djdj39f029c".getBytes(), 0, "djdj39f029c", 14, null
+          "11:djdj39f029c".getBytes(), 0, "djdj39f029c".getBytes(), 14, null
       },
       new Object[] {
-          "sss11:djdj39f029c".getBytes(), 3, "djdj39f029c", 14, null
+          "sss11:djdj39f029c".getBytes(), 3, "djdj39f029c".getBytes(), 14, null
       },
       new Object[] {
           "4:22".getBytes(), 0, null, null, BEncodeFormatException.class
@@ -160,7 +160,7 @@ public class ParserTest {
     };
   }
   
-  @Test(dataProvider = "parseDictionaryTestData", enabled = false)
+  @Test(dataProvider = "parseDictionaryTestData")
   public void parseDic(final byte[] content, int offset, 
       BDictionary expectedValue, Integer expectedContentLength, 
       Class<?> expectedClass) {
@@ -180,7 +180,7 @@ public class ParserTest {
     }
   }
 
-  @Test(dataProvider = "parseIntTestData", enabled = false)
+  @Test(dataProvider = "parseIntTestData")
   public void parseNumber(
       final byte[] content, int offset, 
       Long expectedValue, Integer expectedContentLength, 
@@ -204,7 +204,7 @@ public class ParserTest {
     }
   }
 
-  @Test(dataProvider = "parseListTestData", enabled = false)
+  @Test(dataProvider = "parseListTestData")
   public void parseList(
       final byte[] content, int offset, 
       BList expectedValue, Integer expectedContentLength, 
@@ -225,9 +225,9 @@ public class ParserTest {
     }
   }
 
-  @Test(dataProvider = "parseStringTestData", enabled = false)
+  @Test(dataProvider = "parseStringTestData")
   public void parseString(final byte[] content, int offset, 
-      String expectedValue, Integer expectedContentLength, 
+      byte[] expectedValue, Integer expectedContentLength, 
       Class<?> expectedClass) {
     BString parseResult = null;
     Class<?> threwExceptionClass = null;
@@ -244,7 +244,7 @@ public class ParserTest {
       Assert.assertEquals(
           expectedContentLength, 
           Integer.valueOf(parseResult.getContentLength()));
-      Assert.assertEquals(expectedValue, parseResult.getContent());
+      Assert.assertEquals(parseResult.getContent(), expectedValue);
     }
   }
 

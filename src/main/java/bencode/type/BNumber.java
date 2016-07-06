@@ -67,4 +67,17 @@ public class BNumber implements BType<Long> {
   public String toString() {
     return content.toString();
   }
+  
+  @Override
+  public byte[] encode() {
+    byte[] result = new byte[contentLength];
+    result[0] = PREFIX;
+    long tempContent = this.content;
+    for (int i = contentLength - 2; i > 0 ; i--) {
+      result[i] = (byte)('0' + (tempContent % 10));
+      tempContent = tempContent / 10;
+    }
+    result[contentLength - 1] = SUFFIX;
+    return result;
+  }
 }

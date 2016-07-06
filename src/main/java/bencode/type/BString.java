@@ -28,7 +28,8 @@ public class BString implements BType<byte[]>, Comparable<BString> {
 
   public BString(byte[] content) {
     this.content = content;
-    this.contentLength = content.length + 1;
+    int strLength = content.length;
+    this.contentLength = String.valueOf(strLength).length() + 1 + strLength;
   }
 
   private byte[] content;
@@ -72,5 +73,22 @@ public class BString implements BType<byte[]>, Comparable<BString> {
   @Override
   public String toString() {
     return new String(content, Charset.forName(CHARSET_ASCII));
+  }
+  
+  @Override
+  public byte[] encode() {
+    int lengthDiff = contentLength - content.length;
+    byte[] result = new byte[contentLength];
+    int i = contentLength - 1;
+    for (; i >= lengthDiff; i--) {
+      result[i] = content[i - lengthDiff];
+    }
+    result[i--] = DELIMITER;
+    int tempContentLength = content.length;
+    while (i >= 0) {
+      result[i--] = (byte)('0' + (tempContentLength % 10));
+      tempContentLength = tempContentLength / 10;
+    }
+    return result;
   }
 }

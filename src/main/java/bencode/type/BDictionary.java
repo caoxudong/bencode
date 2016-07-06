@@ -98,4 +98,25 @@ public class BDictionary implements BType<TreeMap<BString, BType<?>>> {
     sb.append("}");
     return sb.toString();
   }
+  
+  @Override
+  public byte[] encode() {
+    byte[] result = new byte[contentLength];
+    result[0] = PREFIX;
+    int pos = 1;
+    for (Entry<BString, BType<?>> entry: content.entrySet()) {
+      BString key = entry.getKey();
+      BType<?> value = entry.getValue();
+      byte[] keyEncode = key.encode();
+      byte[] valueEncode = value.encode();
+      for (byte b: keyEncode) {
+        result[pos++] = b;
+      }
+      for (byte b: valueEncode) {
+        result[pos++] = b;
+      }
+    }
+    result[contentLength - 1] = SUFFIX;
+    return result;
+  }
 }

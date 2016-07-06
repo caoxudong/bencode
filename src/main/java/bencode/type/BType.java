@@ -28,4 +28,10 @@ public interface BType<T> {
    */
   int getContentLength();
   
+  /**
+   * 
+   * @return        返回当前数据的B编码
+   * @since 0.1.0
+   */
+  byte[] encode();
 }

@@ -82,5 +82,19 @@ public class BList implements BType<LinkedList<BType<?>>> {
     sb.append("]");
     return sb.toString();
   }
-  
+
+  @Override
+  public byte[] encode() {
+    byte[] result = new byte[contentLength];
+    result[0] = PREFIX;
+    int pos = 1;
+    for (BType<?> e: content) {
+      byte[] eEncode = e.encode();
+      for (byte b: eEncode) {
+        result[pos++] = b;
+      }
+    }
+    result[contentLength - 1] = SUFFIX;
+    return result;
+  }
 }
