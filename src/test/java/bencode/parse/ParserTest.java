@@ -255,6 +255,7 @@ public class ParserTest {
     URI uri = url.toURI();
     Path path = Paths.get(uri);
     byte[] data = Files.readAllBytes(path);
-    parser.parse(data, 0, data.length);
+    BList bList = parser.parse(data, 0, data.length);
+    Assert.assertNotNull(bList);
   }
 }
