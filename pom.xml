@@ -3,7 +3,7 @@
 >
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>torrent</groupId>
+  <groupId>com.github.caoxudong.bencode</groupId>
   <artifactId>bencode</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
